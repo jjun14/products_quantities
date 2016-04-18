@@ -30,6 +30,11 @@
           callback(products);
         }
 
+        factory.addProduct= function(product, callback){
+          products.push(product)
+          callback(products);
+        }
+
         factory.removeProduct = function(product, callback){
           var removeIndex = products.indexOf(product);
           products.splice(removeIndex, 1);
@@ -57,7 +62,14 @@
 
         init();
 
-        $scope.removeProduct = function removeProduct(product){
+        $scope.addProduct = function(newProduct){
+          newProduct.qty = 25;
+          productsFactory.addProduct(newProduct, function(data){
+            $scope.products = data;
+          })
+        }
+
+        $scope.removeProduct = function(product){
           productsFactory.removeProduct(product, function(data){
             $scope.products = data;
           })
@@ -85,6 +97,10 @@
   <body ng-app="myApp">
     <div ng-controller='productsController'>
       <h1>Products</h1>
+      <h3>Add a Product</h3>
+      Name: <input type="text" ng-model='newProduct.name'<br>
+      Price: <input type="number" ng-model='newProduct.price'><br>
+      <button ng-click='addProduct(newProduct)'>Add Product</button>
       <table >
         <thead>
           <tr>
