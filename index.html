@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>product and quantities</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      // README
+      // we aren't yet using routes so we can have multiple elements in the body
+      // of out HTML that have their own ng-controller attached to it
+
+      // for the remaining functionality we need to create 2 controllers and 1 factory
+      // the naming for all controller $scope methods are named intuitively and correspond
+      // easily to the factory functions they employ
+
+      // declare the angular module
+      var myApp = angular.module('myApp', []);
+      
+      // define a factory to store the list of products
+      // and maniuplate the list of products as necessary
+      myApp.factory('productsFactory', function(){
+        var factory = {};
+        var products = [
+                        {'name': 'keyboard', price: '49.99', qty: '25'},
+                        {'name': 'mouse', price: '10.99', qty: '25'},
+                        {'name': 'basketball', price: '35.99', qty: '25'}
+                       ]
+        
+        factory.getAllProducts = function(callback){
+          callback(products);
+        }
+
+        factory.removeProduct = function(product, callback){
+          var removeIndex = products.indexOf(product);
+          products.splice(removeIndex, 1);
+          callback(products);
+        }
+
+        factory.buyProduct = function(product, callback){
+          var updateIndex = products.indexOf(product);
+          var productToUpdate = products[updateIndex];
+          if(productToUpdate.qty > 0){
+            productToUpdate.qty -= 1;
+          }
+          callback(products);
+        }
+
+        return factory;
+      });
+
+      myApp.controller('productsController', function($scope, productsFactory){
+        function init(){
+          productsFactory.getAllProducts(function(data){
+            $scope.products = data;
+          })
+        }
+
+        init();
+
+        $scope.removeProduct = function removeProduct(product){
+          productsFactory.removeProduct(product, function(data){
+            $scope.products = data;
+          })
+        }
+      })
+
+      myApp.controller('ordersController', function($scope, productsFactory ){
+        function init(){
+          productsFactory.getAllProducts(function(data){
+            $scope.products = data;
+          })
+        }
+
+        init();
+
+        $scope.buyProduct = function(product){
+          console.log('here')
+          productsFactory.buyProduct(product, function(data){
+            $scope.products = data;
+          })
+        }
+      })
+    </script>
+  </head>
+  <body ng-app="myApp">
+    <div ng-controller='productsController'>
+      <h1>Products</h1>
+      <table >
+        <thead>
+          <tr>
+            <th>Name</th> 
+            <th>Price</th> 
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat='product in products'>
+            <td>{{ product.name }}</td>
+            <td>${{ product.price|number:2 }}</td>
+            <td><button ng-click='removeProduct(product)'>Remove Product</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div ng-controller='ordersController'>
+      <h1>Orders</h1>
+      <table >
+        <thead>
+          <tr>
+            <th>Name</th> 
+            <th>Price</th> 
+            <th>Quantity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat='product in products'>
+            <td>{{ product.name }}</td>
+            <td>${{ product.price|number:2 }}</td>
+            <td>{{ product.qty }}</td>
+            <td><button ng-click="buyProduct(product)">Buy</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
